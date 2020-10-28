@@ -55,7 +55,7 @@ jobs:
       run: |
         echo "current profile: "$PROFILE
         npm i
-        npm build:$PROFILE
+        npm run build:$PROFILE
 
     - name: test existance
       id: test_dist_exist
