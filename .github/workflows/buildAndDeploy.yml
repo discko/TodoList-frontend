@@ -62,8 +62,7 @@ jobs:
       run: |
         wd=`pwd`
         echo "we are at "$wd
-        cd $BUILT_DIR
-        ls
+        ls $BUILT_DIR/*
         if [ -d $BUILT_DIR ]; then
           echo "::set-output name=found::true"
         else
