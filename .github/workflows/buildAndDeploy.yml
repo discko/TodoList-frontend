@@ -41,9 +41,11 @@ jobs:
 
     - name: Setup node
       uses: actions/setup-node@v2.1.2
+      with:
+        node_version: 12.13.1
 
     - name: node_modules prepare
-      id: node_modules_cache
+      id: node_modules_cacheK
       uses: actions/cache@v2
       with:
         path: ./node_modules
