@@ -6,7 +6,7 @@ const profile: ProfiledConfig = {
     serial: '0.0.1'
   },
   netConfig: {
-    baseUrl: 'http://test.api.todolist.wudo.space',
+    baseUrl: 'http://test.api.todolist.wudi.space',
     version: ''
   }
 }
