@@ -1,8 +1,14 @@
-import { Profile } from './profile'
+import ProfiledConfig from './profile'
 
-const profile: Profile = {
-  profileName: 'test',
-  serial: 'V0.1'
+const profile: ProfiledConfig = {
+  profileInfo: {
+    profileName: 'test',
+    serial: '0.0.1'
+  },
+  netConfig: {
+    baseUrl: 'http://test.api.todolist.wudo.space',
+    version: ''
+  }
 }
 
 export default profile

@@ -2,11 +2,11 @@ import ProfiledConfig from './profile'
 
 const profile: ProfiledConfig = {
   profileInfo: {
-    profileName: 'product',
+    profileName: 'local',
     serial: '0.0.1'
   },
   netConfig: {
-    baseUrl: 'http://api.todolist.wudi.space',
+    baseUrl: 'http://localhost:8082',
     version: ''
   }
 }

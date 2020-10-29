@@ -1,13 +1,13 @@
-import { Profile } from '../static/config/profile'
+import ProfiledConfig from '../static/config/profile'
+import globalConfig, { GlobalConfig } from '../static/config/globalConfig'
 class Global {
-  num: number
-  profile: Profile | undefined
+  profiledConfig: ProfiledConfig | undefined =undefined
+  globalConfig: GlobalConfig
   env: string
 
-  constructor (num: number) {
-    this.num = num
+  constructor () {
     this.env = this.getEnv()
-    this.profile = undefined
+    this.globalConfig = globalConfig
   }
 
   public getEnv () {
@@ -18,14 +18,22 @@ class Global {
     return env
   }
 
+  public getProfiledConfig (): ProfiledConfig {
+    // eslint-disable-next-line
+    return this.profiledConfig!
+  }
+
+  public getGlobalConfig (): GlobalConfig {
+    return this.globalConfig
+  }
+
   public async init () {
     // this.env = 'test'
-    console.log('../static/config/' + `profile-${this.env}`)
     import('../static/config/' + `profile-${this.env}`)
       .then(module => {
         console.log('module: ', module)
-        this.profile = module.default
-        console.log('profileName:', this.profile?.profileName)
+        this.profiledConfig = module.default
+        console.log('profileName:', this.profiledConfig?.profileInfo.profileName)
       })
       .catch(reason => {
         console.error('load module fail: ', reason)
@@ -35,4 +43,4 @@ class Global {
 
 console.log('create global')
 
-export default new Global(Math.random())
+export default new Global()
