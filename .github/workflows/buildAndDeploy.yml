@@ -56,8 +56,6 @@ jobs:
         echo "current profile: "$PROFILE
         npm i
         npm run build:$PROFILE
-        echo "show detail:"
-        cat dist/js/app.js | grep this.env
 
     - name: test existance
       id: test_dist_exist
