@@ -1,22 +1,27 @@
 import { IMessageHandle, IMessageOptions } from 'element-plus/lib/message/src/types'
 import { Message } from 'element-plus/lib/message'
 
+import { ElMessageBox } from 'element-plus/types/message-box'
+import { MessageBox } from 'element-plus/lib/message-box'
+
+import { ElNotification } from 'element-plus/types/notification'
+import { Notify } from 'element-plus/lib/notification'
+
+// Message
 interface ElMessage {
   (text: string): IMessageHandle;
   (options: IMessageOptions): IMessageHandle;
-  success(text: string | IMessageOptions): IMessageHandle;
-  warning(text: string | IMessageOptions): IMessageHandle;
-  info(text: string | IMessageOptions): IMessageHandle;
-  error(text: string | IMessageOptions): IMessageHandle;
+  success(text: string): IMessageHandle;
+  success(options: IMessageOptions): IMessageHandle;
+  warning(text: string): IMessageHandle;
+  warning(options: IMessageOptions): IMessageHandle;
+  info(text: string): IMessageHandle;
+  info(options: IMessageOptions): IMessageHandle;
+  error(text: string): IMessageHandle;
+  error(options: IMessageOptions): IMessageHandle;
 }
 
 const message = function (arg: string | IMessageOptions): IMessageHandle {
-  if (typeof arg === 'string') {
-    arg = {
-      message: arg
-    }
-  }
-  arg.type = 'info'
   return Message(arg)
 } as ElMessage;
 
@@ -33,6 +38,59 @@ const message = function (arg: string | IMessageOptions): IMessageHandle {
   }
 })
 
-export {
-  message as epMessage
+// MessageBox
+interface MessageBoxInputData {
+  value: string;
+  action: 'confirm' | 'cancel' | 'close';
 }
+
+const msgbox = MessageBox as ElMessageBox
+const alert = msgbox.alert
+const confirm = msgbox.confirm
+const prompt = msgbox.prompt
+
+// Notification
+const notify = Notify as ElNotification
+
+// export
+const _default = {
+  message: message,
+  msgbox: msgbox,
+  alert: alert,
+  confirm: confirm,
+  prompt: prompt,
+  notify: notify
+}
+
+export default _default
+export {
+  message as epMessage,
+  msgbox as epMessageBox,
+  msgbox as epMsgBox,
+  alert as epAlert,
+  confirm as epConfirm,
+  prompt as epPrompt,
+  notify as epNotify,
+  MessageBoxInputData
+}
+
+// const a = new Promise<string>((resolve, reject) => {
+//   console.log(777)
+//   resolve('aaa')
+//   reject('aaa')
+// })
+
+// a.then().catch(reason => {
+
+// })
+
+/**
+ *
+  messageBox as epMessageBox,
+  messageBox as epMsgBox,
+  alert as epAlert,
+  confirm as epConfirm,
+  prompt as epPrompt,
+  notify as epNotify,
+  MessageBoxInputData
+ */

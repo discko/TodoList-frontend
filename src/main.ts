@@ -1,10 +1,17 @@
 import { createApp } from 'vue'
 import ElementPlus from 'element-plus'
 import 'element-plus/lib/theme-chalk/index.css'
-import App from './App.vue'
-import router from './router'
-import store from './store'
+import global from '@/utils/global'
+import appVue from './App.vue'
 
-const app = createApp(App)
+const app = createApp(appVue)
+app.use(ElementPlus);
 
-app.use(ElementPlus).use(store).use(router).mount('#app')
+(async () => {
+  await global.init()
+  const router = (await import('./router')).default
+  const store = (await import('./store')).default
+  app.use(router)
+    .use(store)
+    .mount('#app')
+})()
