@@ -123,11 +123,11 @@ jobs:
         username: ${{ secrets.CI_USER }}
         port: ${{ secrets.CI_SSH_PORT }}
         key: ${{ secrets.CI_SSH_KEY }}
-        proxy_host: ${{ secrets.PROXY_HOST }}
-        proxy_port: ${{ secrets.PROXY_SSH_PORT }}
-        proxy_username: ${{ secrets.PROXY_USER }}
-        proxy_password: ${{ secrets.PROXY_PASSWORD }}
-        proxy_key: ${{ secrets.PROXY_SSH_KEY }}
+        # proxy_host: ${{ secrets.PROXY_HOST }}
+        # proxy_port: ${{ secrets.PROXY_SSH_PORT }}
+        # proxy_username: ${{ secrets.PROXY_USER }}
+        # proxy_password: ${{ secrets.PROXY_PASSWORD }}
+        # proxy_key: ${{ secrets.PROXY_SSH_KEY }}
         source: ${{env.BUILT_DIR}}
         target: ${{env.SCP_TAR_DIR}}
         strip_components: ${{env.TAR_STRIP_PATH}}
