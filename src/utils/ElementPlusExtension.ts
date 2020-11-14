@@ -73,24 +73,3 @@ export {
   notify as epNotify,
   MessageBoxInputData
 }
-
-// const a = new Promise<string>((resolve, reject) => {
-//   console.log(777)
-//   resolve('aaa')
-//   reject('aaa')
-// })
-
-// a.then().catch(reason => {
-
-// })
-
-/**
- *
-  messageBox as epMessageBox,
-  messageBox as epMsgBox,
-  alert as epAlert,
-  confirm as epConfirm,
-  prompt as epPrompt,
-  notify as epNotify,
-  MessageBoxInputData
- */
