@@ -1,0 +1,155 @@
+# This is a basic workflow to help you get started with Actions
+
+name: Build And Deploy TodoList-frontend
+
+# Controls when the action will run. Triggers the workflow on push or pull request
+# events but only for the master branch
+on:
+  workflow_dispatch:
+    branches: [ master, test, dev ]
+
+env:
+  BUILT_DIR: dist
+  PROFILE: dev #default profile
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    outputs:
+      foundFile: ${{ steps.test_dist_exist.outputs.found }}
+      profile: ${{steps.buildFinish.outputs.profile}}
+
+    steps:
+
+    # change profile
+    - name: check if test
+      if: ${{ endsWith( github.ref, '/test' ) }}
+      run: |
+        echo "PROFILE=test" >>$GITHUB_ENV
+        echo "change PROFILE to test"
+
+    - name: check if master
+      if: ${{ endsWith( github.ref, '/master' ) }}
+      run: |
+        echo "PROFILE=product" >> $GITHUB_ENV
+        echo "change PROFILE to product"
+
+
+    # clone repository to VM
+    - uses: actions/checkout@master
+
+    - name: Setup node
+      uses: actions/setup-node@v2.1.2
+      with:
+        node_version: 12.13.1
+
+    - name: node_modules prepare
+      id: node_modules_cacheK
+      uses: actions/cache@v2
+      with:
+        path: ./node_modules
+        key: ${{ runner.os }}-node_modules-${{ hashFiles('./package.json') }}
+
+    - name: build
+      run: |
+        echo "current profile: "$PROFILE
+        npm i
+        npm run build:$PROFILE
+
+    - name: test existance
+      id: test_dist_exist
+      run: |
+        wd=`pwd`
+        echo "we are at "$wd
+        ls $BUILT_DIR/*
+        if [ -d $BUILT_DIR ]; then
+          echo "::set-output name=found::true"
+        else
+          echo "::set-output name=found::false"
+          echo "::error file=$BUILT_DIR::file not found"
+          exit 1
+        fi
+
+    - name: cache built
+      if: ${{ steps.test_jar_exist.outputs.foundFile }} == 'true'
+      uses: actions/cache@v2
+      with:
+        path: ${{ env.BUILT_DIR }}
+        key: ${{ runner.os }}-release-${{github.sha}}
+
+    - name: post output
+      id: buildFinish
+      run: |
+        echo "build finished with profile "$PROFILE
+        echo "::set-output name=profile::$PROFILE"
+
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    env:
+      TAR_STRIP_PATH: 0
+      SCP_TAR_DIR: ~/todolist
+      RUNTIME_DIR: /var/todolist/
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+
+    - name: prepare env
+      run: |
+        echo "RUNTIME_DIR="${{env.RUNTIME_DIR}}/${{needs.build.outputs.profile}}/static >> $GITHUB_ENV
+
+    - name: restore jar
+      uses: actions/cache@v2
+      with:
+        path: ${{ env.BUILT_DIR }}
+        key: ${{ runner.os }}-release-${{github.sha}}
+
+    - name: ssh before scp
+      uses: appleboy/ssh-action@v0.1.3
+      with:
+        host: ${{ secrets.CI_HOST }}
+        port: ${{ secrets.CI_SSH_PORT }}
+        username: ${{ secrets.CI_USER }}
+        key: ${{ secrets.CI_SSH_KEY }}
+        script: |
+          mkdir -p ${{env.SCP_TAR_DIR}}
+
+    - name: send file by scp
+      uses: appleboy/scp-action@master
+      with:
+        host: ${{ secrets.CI_HOST }}
+        username: ${{ secrets.CI_USER }}
+        port: ${{ secrets.CI_SSH_PORT }}
+        key: ${{ secrets.CI_SSH_KEY }}
+        proxy_host: ${{ secrets.PROXY_HOST }}
+        proxy_port: ${{ secrets.PROXY_SSH_PORT }}
+        proxy_username: ${{ secrets.PROXY_USER }}
+        proxy_password: ${{ secrets.PROXY_PASSWORD }}
+        proxy_key: ${{ secrets.PROXY_SSH_KEY }}
+        source: ${{env.BUILT_DIR}}
+        target: ${{env.SCP_TAR_DIR}}
+        strip_components: ${{env.TAR_STRIP_PATH}}
+
+    - name: ssh after scp (run server)
+      uses: appleboy/ssh-action@v0.1.3
+      with:
+        host: ${{ secrets.CI_HOST }}
+        port: ${{ secrets.CI_SSH_PORT }}
+        username: ${{ secrets.CI_USER }}
+        key: ${{ secrets.CI_SSH_KEY }}
+        script: |
+          cd ${{env.SCP_TAR_DIR}}
+          TarDir=${{env.RUNTIME_DIR}}
+          echo "make dir $TarDir if exists"
+          sudo mkdir -p $TarDir
+          echo "copy $JarFile to $TarDir"
+          if [ $TarDir ];
+          then
+            echo "remove all at "$TarDir
+            sudo rm -rf $TarDir/*
+            sudo cp -r ${{env.SCP_TAR_DIR}}/${{ env.BUILT_DIR }}/* $TarDir
+            sudo chmod 777 $TarDir/*
+            rm -r ${{env.SCP_TAR_DIR}}/${{ env.BUILT_DIR }}
+          fi
